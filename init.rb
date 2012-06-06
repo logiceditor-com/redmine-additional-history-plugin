@@ -2,10 +2,14 @@ require 'redmine'
 
 require 'dispatcher'
 require 'TimelogControllerPatch'
+require 'IssuesControllerPatch'
 
 Dispatcher.to_prepare :redmine_additional_history do
   require_dependency 'timelog_controller'
   TimelogController.send(:include, TimelogControllerPatch)
+
+  require_dependency 'issues_controller'
+  IssuesController.send(:include, IssuesControllerPatch)
 end
 
 Redmine::Plugin.register :redmine_additional_history do
