@@ -4,6 +4,8 @@ require 'dispatcher'
 require 'TimelogControllerPatch'
 require 'IssuesControllerPatch'
 require 'WatchersControllerPatch'
+require 'MailerPatch'
+require 'IssuePatch'
 
 Dispatcher.to_prepare :redmine_additional_history do
   require_dependency 'timelog_controller'
@@ -14,6 +16,12 @@ Dispatcher.to_prepare :redmine_additional_history do
 
   require_dependency 'watchers_controller'
   WatchersController.send(:include, WatchersControllerPatch)
+
+  require_dependency 'mailer'
+  Mailer.send(:include, MailerPatch)
+
+  require_dependency 'issue'
+  Issue.send(:include, IssuePatch)
 end
 
 Redmine::Plugin.register :redmine_additional_history do
