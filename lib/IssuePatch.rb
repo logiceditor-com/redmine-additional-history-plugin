@@ -15,10 +15,12 @@ module IssuePatch
     def save_attachments_with_enhance(attachments, author=User.current)
       attach_result = save_attachments_without_enhance(attachments, author)
 
-      attach_result[:files].each do |file|
-        file.container = self
+      if attach_result[:files].length > 0
+        attach_result[:files].each do |file|
+          file.container = self
+        end
+        Mailer.deliver_attachments_added(attach_result[:files])
       end
-      Mailer.deliver_attachments_added(attach_result[:files])
     end
 
   end
