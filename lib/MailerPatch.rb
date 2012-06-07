@@ -25,9 +25,9 @@ module MailerPatch
         is_in_issue = attachments.first.container.class.name == 'Issue'
         if is_in_issue
           issue = attachments.first.container
-          added_to_url = url_for(:controller => 'issues', :action => 'show', :id => issue.id)
+          added_to_url = url_for(:controller => 'issues', :action => 'show', :id => 1)
           added_to = "#{l(:label_issue)}: #{issue.subject}"
-          subject "[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}] #{l(:label_attachment_new)} (#{issue.subject})"
+          subject "[#{issue.project.name} - New #{issue.tracker.name}] #{l(:label_attachment_new)} (#{issue.subject})"
           body :attachments => attachments,
                :added_to => added_to,
                :added_to_url => added_to_url
