@@ -19,13 +19,14 @@ module TimelogControllerPatch
     end
   end
 
+  PREFIX = "[additional_history_plugin] "
   module InstanceMethods
 
     def create_with_post_changes
       create_without_post_changes
 
       if !@time_entry.new_record?
-        post_comment(@issue, "ST added: #{@time_entry.attributes['hours']} (#{@time_entry.attributes['comments']})")
+        post_comment(@issue, "#{PREFIX}ST added: #{humanize_hours(@time_entry.attributes['hours'])} (#{@time_entry.attributes['comments']}) (total: #{humanize_hours(@time_entry.issue.total_spent_hours)})")
       end
     end
 
@@ -35,7 +36,7 @@ module TimelogControllerPatch
       update_without_post_changes
 
       if @time_entry.errors.length == 0
-        post_comment(@time_entry.issue, "ST changed: #{original_hours} -> #{@time_entry.attributes['hours']} (#{@time_entry.attributes['comments']})")
+        post_comment(@time_entry.issue, "#{PREFIX}ST changed: #{humanize_hours(original_hours)} -> #{humanize_hours(@time_entry.attributes['hours'])} (#{@time_entry.attributes['comments']}) (total: #{humanize_hours(@time_entry.issue.total_spent_hours)})")
       end
     end
 
@@ -43,7 +44,7 @@ module TimelogControllerPatch
       destroy_without_post_changes
 
       @time_entries.each do |time_entry|
-        post_comment(time_entry.issue, "ST removed: #{time_entry.attributes['hours']} (#{time_entry.attributes['comments']})")
+        post_comment(time_entry.issue, "#{PREFIX}ST removed: #{humanize_hours(time_entry.attributes['hours'])} (#{time_entry.attributes['comments']}) (total: #{humanize_hours(time_entry.issue.total_spent_hours)})")
       end
     end
 

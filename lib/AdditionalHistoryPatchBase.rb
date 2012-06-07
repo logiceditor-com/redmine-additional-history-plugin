@@ -5,4 +5,8 @@ module AdditionalHistoryPatchBase
     comment.journalized = issue
     comment.save
   end
+
+  def humanize_hours(hours)
+    hours.to_f.round(2)
+  end
 end

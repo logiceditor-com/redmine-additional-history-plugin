@@ -27,7 +27,7 @@ module IssuesControllerPatch
 
     def update_with_post_st_changes
       if params['time_entry']['hours'].to_i > 0 && params['time_entry']['activity_id'].to_i > 0
-        params['notes'] = "ST added: #{params['time_entry']['hours']} (#{params['time_entry']['comments']})\n\n#{params['notes']}"
+        params['notes'] = "#{TimelogControllerPatch::PREFIX}ST added: #{humanize_hours(params['time_entry']['hours'])} (#{params['time_entry']['comments']}) (total: #{humanize_hours(@issue.total_spent_hours)})\n\n#{params['notes']}"
       end
       
       update_without_post_st_changes
