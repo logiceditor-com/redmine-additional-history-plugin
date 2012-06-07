@@ -18,13 +18,29 @@ module MailerPatch
         attachments.each do |attachment|
           filepath = RAILS_ROOT + "/files/" + attachment.disk_filename
           action_mailer.attachment :content_type => attachment.content_type,
-                                   :body => File.read(filepath)
+                                   :body => File.read(filepath),
+                                   :filename => attachment.filename
         end
+
+        is_in_issue = attachments.first.container.class.name == 'Issue'
+        if is_in_issue
+          issue = attachments.first.container
+          added_to_url = url_for(:controller => 'issues', :action => 'show', :id => issue.id)
+          added_to = "#{l(:label_issue)}: #{issue.subject}"
+          subject "[#{issue.project.name} - #{issue.tracker.name} ##{issue.id}] #{l(:label_attachment_new)} (#{issue.subject})"
+          body :attachments => attachments,
+               :added_to => added_to,
+               :added_to_url => added_to_url
+
+          recipients issue.recipients
+
+        end
+
+        break
       end
 
       add_result
     end
 
   end
-
 end
