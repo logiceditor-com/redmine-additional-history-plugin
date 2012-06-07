@@ -6,6 +6,7 @@ require 'IssuesControllerPatch'
 require 'WatchersControllerPatch'
 require 'MailerPatch'
 require 'IssuePatch'
+require 'JournalsControllerPatch'
 
 Dispatcher.to_prepare :redmine_additional_history do
   require_dependency 'timelog_controller'
@@ -22,6 +23,9 @@ Dispatcher.to_prepare :redmine_additional_history do
 
   require_dependency 'issue'
   Issue.send(:include, IssuePatch)
+
+  require_dependency 'journals_controller'
+  JournalsController.send(:include, JournalsControllerPatch)
 end
 
 Redmine::Plugin.register :redmine_additional_history do
@@ -32,3 +36,5 @@ Redmine::Plugin.register :redmine_additional_history do
   url 'http://logiceditor.com'
   author_url 'http://logiceditor.com'
 end
+
+require "hooks/ControllersJournalsEditPostHook"

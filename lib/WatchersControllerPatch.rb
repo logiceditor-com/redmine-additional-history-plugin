@@ -1,4 +1,4 @@
-require_dependency 'issues_controller'
+require_dependency 'watchers_controller'
 
 require 'AdditionalHistoryPatchBase'
 
