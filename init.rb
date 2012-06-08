@@ -7,6 +7,7 @@ require 'WatchersControllerPatch'
 require 'MailerPatch'
 require 'IssuePatch'
 require 'JournalsControllerPatch'
+require 'TimeEntryPatch'
 
 Dispatcher.to_prepare :redmine_additional_history do
   require_dependency 'timelog_controller'
@@ -26,6 +27,9 @@ Dispatcher.to_prepare :redmine_additional_history do
 
   require_dependency 'journals_controller'
   JournalsController.send(:include, JournalsControllerPatch)
+
+  require_dependency 'time_entry'
+  TimeEntry.send(:include, TimeEntryPatch)
 end
 
 Redmine::Plugin.register :redmine_additional_history do

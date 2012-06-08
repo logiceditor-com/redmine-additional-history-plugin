@@ -35,7 +35,7 @@ module WatchersControllerPatch
           end
           user_names = user_names.join(", ")
 
-          post_comment(issue, "#{user_names} was added to watchers")
+          post_comment(issue, "Watchers added: #{user_names}")
         end
       end
     end
@@ -50,7 +50,7 @@ module WatchersControllerPatch
       if params['object_type'] == "issue"
         user = User.find(params[:user_id])
         issue = Issue.find(params[:object_id])
-        post_comment(issue, "Watcher #{user.name} was removed")
+        post_comment(issue, "Watchers removed: #{user.name}")
       end
     end
 
