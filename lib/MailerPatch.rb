@@ -72,6 +72,8 @@ module MailerPatch
         break
       end
 
+      add_result.pop # hack for gmail can see attaches properly
+
       add_result
     end
 
