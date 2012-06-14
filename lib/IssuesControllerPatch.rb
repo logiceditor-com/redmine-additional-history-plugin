@@ -26,7 +26,8 @@ module IssuesControllerPatch
     #end
 
     def update_with_post_st_changes
-      if params['time_entry']['hours'].to_i > 0 && params['time_entry']['activity_id'].to_i > 0
+      time_entry = params['time_entry']
+      if time_entry['hours'].to_i > 0 && time_entry['activity_id'].to_i > 0 && !time_entry['comments'].empty?
         st = parse_hours(params['time_entry']['hours'])
         comments = params['time_entry']['comments']
         total_st = humanize_hours(@issue.total_spent_hours + st)
