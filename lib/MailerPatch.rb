@@ -7,6 +7,8 @@ module MailerPatch
     base.class_eval do
       alias_method :attachments_added_without_enhance, :attachments_added unless method_defined?(:attachments_added_without_enhance)
       alias_method :attachments_added, :attachments_added_with_enhance
+      alias_method :render_multipart_without_enhance, :render_multipart unless method_defined?(:render_multipart_without_enhance)
+      alias_method :render_multipart, :render_multipart_with_enhance
     end
   end
 
@@ -47,33 +49,33 @@ module MailerPatch
 
     def attachments_added_with_enhance(attachments)
       add_result = attachments_added_without_enhance(attachments)
-      add_result.each do |action_mailer|
-        attachments.each do |attachment|
-          filepath = RAILS_ROOT + "/files/" + attachment.disk_filename
-          action_mailer.attachment :content_type => attachment.content_type,
-                                   :body => File.read(filepath),
-                                   :filename => attachment.filename
-        end
-
-        is_in_issue = attachments.first.container.class.name == 'Issue'
-        if is_in_issue
-          issue = attachments.first.container
-          added_to_url = url_for(:controller => 'issues', :action => 'show', :id => 1)
-          added_to = "#{l(:label_issue)}: #{issue.subject}"
-          subject "[#{issue.project.name} - New #{issue.tracker.name}] #{l(:label_attachment_new)} (#{issue.subject})"
-          body :attachments => attachments,
-               :added_to => added_to,
-               :added_to_url => added_to_url
-
-          recipients issue.recipients
-
-        end
-
-        break
-      end
-
-      add_result.pop # hack for gmail can see attaches properly
-
+      #add_result.each do |action_mailer|
+      #  attachments.each do |attachment|
+      #    filepath = RAILS_ROOT + "/files/" + attachment.disk_filename
+      #    action_mailer.attachment :content_type => attachment.content_type,
+      #                             :body => File.read(filepath),
+      #                             :filename => attachment.filename
+      #  end
+      #
+      #  is_in_issue = attachments.first.container.class.name == 'Issue'
+      #  if is_in_issue
+      #    issue = attachments.first.container
+      #    added_to_url = url_for(:controller => 'issues', :action => 'show', :id => 1)
+      #    added_to = "#{l(:label_issue)}: #{issue.subject}"
+      #    subject "[#{issue.project.name} - New #{issue.tracker.name}] #{l(:label_attachment_new)} (#{issue.subject})"
+      #    body :attachments => attachments,
+      #         :added_to => added_to,
+      #         :added_to_url => added_to_url
+      #
+      #    recipients issue.recipients
+      #
+      #  end
+      #
+      #  break
+      #end
+      #
+      #add_result.pop # hack for gmail can see attaches properly
+      #
       add_result
     end
 
@@ -105,5 +107,48 @@ module MailerPatch
 
       render_multipart('issue_edit', body)
     end
+
+    def perform_attach(attachment_item)
+      filepath = RAILS_ROOT + "/files/" + attachment_item.disk_filename
+      attachment :content_type => attachment_item.content_type,
+                 :body => File.read(filepath),
+                 :filename => attachment_item.filename
+
+    end
+
+    def perform_attaches(attachments)
+      if attachments
+        attachments.each do |attachment_item|
+          perform_attach(attachment_item)
+        end
+      end
+    end
+
+    def render_multipart_with_enhance(method_name, body)
+      if method_name == 'issue_edit'
+        journal = body[:journal]
+        details = journal.details
+
+        details.each do |detail|
+          if detail.property == 'attachment'
+            attachment_item = Attachment::find(detail.prop_key)
+            perform_attach(attachment_item)
+          end
+        end
+      elsif method_name == 'issue_add'
+        issue = body[:issue]
+        attachments = Attachment.find_all_by_container_type_and_container_id('Issue', issue.id)
+        perform_attaches(attachments);
+      elsif method_name == 'attachments_added'
+        attachments = body[:attachments]
+        perform_attaches(attachments);
+      elsif method_name == 'document_added'
+        attachments = body[:document].attachments
+        perform_attaches(attachments);
+      end
+
+      render_multipart_without_enhance(method_name, body)
+    end
+
   end
 end

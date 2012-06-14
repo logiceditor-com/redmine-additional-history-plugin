@@ -30,7 +30,7 @@ module IssuesControllerPatch
         st = humanize_hours(params['time_entry']['hours'])
         comments = params['time_entry']['comments']
         total_st = humanize_hours(@issue.total_spent_hours)
-        params['notes'] = "#{TimelogControllerPatch::PREFIX}ST added: #{st} (#{comments}) (total: #{total_st})\n\n#{params['notes']}"
+        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}ST added: #{st} (#{comments}) (total: #{total_st})\n\n#{params['notes']}"
       end
       
       update_without_post_st_changes

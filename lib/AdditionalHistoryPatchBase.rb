@@ -1,4 +1,6 @@
 module AdditionalHistoryPatchBase
+  PREFIX = "[additional_history] "
+
   def post_comment(issue, text)
     comment = Journal.new :notes => text
     comment.user = User.current
