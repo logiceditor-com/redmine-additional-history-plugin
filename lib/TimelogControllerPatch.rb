@@ -28,7 +28,7 @@ module TimelogControllerPatch
         st = humanize_hours(@time_entry.attributes['hours'])
         comments = @time_entry.attributes['comments']
         total_st = humanize_hours(@time_entry.issue.total_spent_hours)
-        post_comment(@issue, "#{AdditionalHistoryPatchBase::PREFIX}ST added: #{st} (#{comments}) (total: #{total_st})")
+        post_comment(@issue, "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st}*)")
       end
     end
 
@@ -42,7 +42,7 @@ module TimelogControllerPatch
         new_hours = humanize_hours(@time_entry.attributes['hours'])
         comments = @time_entry.attributes['comments']
         total_st = humanize_hours(@time_entry.issue.total_spent_hours);
-        post_comment(@time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}ST changed: #{original_hours} -> #{new_hours} (#{comments}) (total: #{total_st})")
+        post_comment(@time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}*ST changed*: #{original_hours} -> #{new_hours} (#{comments}) (total: *#{total_st}*)")
       end
     end
 
@@ -53,7 +53,7 @@ module TimelogControllerPatch
         st = humanize_hours(time_entry.attributes['hours'])
         comments = time_entry.attributes['comments']
         total_st = humanize_hours(time_entry.issue.total_spent_hours)
-        post_comment(time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}ST removed: #{st} (#{comments}) (total: #{total_st})")
+        post_comment(time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}*ST removed*: #{st} (#{comments}) (total: *#{total_st}*)")
       end
     end
 

@@ -27,10 +27,11 @@ module IssuesControllerPatch
 
     def update_with_post_st_changes
       if params['time_entry']['hours'].to_i > 0 && params['time_entry']['activity_id'].to_i > 0
-        st = humanize_hours(params['time_entry']['hours'])
+        st = parse_hours(params['time_entry']['hours'])
         comments = params['time_entry']['comments']
-        total_st = humanize_hours(@issue.total_spent_hours)
-        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}ST added: #{st} (#{comments}) (total: #{total_st})\n\n#{params['notes']}"
+        total_st = humanize_hours(@issue.total_spent_hours + st)
+        st = humanize_hours(st)
+        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st}*)\n\n#{params['notes']}"
       end
       
       update_without_post_st_changes

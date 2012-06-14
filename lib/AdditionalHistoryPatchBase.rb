@@ -1,5 +1,5 @@
 module AdditionalHistoryPatchBase
-  PREFIX = "[additional_history] "
+  PREFIX = "_[additional_history]_ "
 
   def post_comment(issue, text)
     comment = Journal.new :notes => text
@@ -9,6 +9,40 @@ module AdditionalHistoryPatchBase
   end
 
   def humanize_hours(hours)
-    hours.to_f.round(2)
+    hours = hours.to_f
+    h = hours.floor
+    m = ((hours - h) * 60).round
+
+    res = ""
+    if(h > 0)
+      res += "#{h}h"
+    end
+    if(m > 0)
+      res += "#{m}m"
+    end
+
+    res
+  end
+
+  def parse_hours(hours)
+    #matches = "1".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    #matches = "0.25".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    #matches = "30m".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    #matches = "1h30m".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    #matches = "1h".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    #matches = "3.25".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    matches = hours.to_s.match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+
+    if matches[2] == nil
+      hours = matches[1].to_f.round(2)
+    elsif matches[2] == "m"
+      hours = (matches[1].to_f / 60).round(2)
+    elsif matches[2] == "h"
+      hours = matches[1].to_f.round(2)
+    else
+      hours = (matches[1].to_f + matches[5].to_f / 60).round(2)
+    end
+
+    return hours
   end
 end
