@@ -31,7 +31,7 @@ module AdditionalHistoryPatchBase
     #matches = "1h30m".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
     #matches = "1h".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
     #matches = "3.25".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    matches = hours.to_s.match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
+    matches = hours.to_s.match(/([\d\.]+)\s*(([hm]?)\s*((\d+)\s*(m?))?)?/)
 
     if matches[2] == nil
       hours = matches[1].to_f.round(2)
