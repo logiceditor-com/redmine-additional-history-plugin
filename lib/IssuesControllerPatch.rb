@@ -21,12 +21,9 @@ module IssuesControllerPatch
 
   module InstanceMethods
 
-    #def create_with_post_st_changes
-    #  create_without_post_st_changes
-    #end
-
     def update_with_post_st_changes
       time_entry = params['time_entry']
+      original_notes = params['notes']
       if time_entry['hours'].to_i > 0 && time_entry['activity_id'].to_i > 0 && !time_entry['comments'].empty?
         st = parse_hours(params['time_entry']['hours'])
         comments = params['time_entry']['comments']
@@ -34,13 +31,46 @@ module IssuesControllerPatch
         st = humanize_hours(st)
         params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st}*)\n\n#{params['notes']}"
       end
-      
-      update_without_post_st_changes
+
+      update_original_and_enhanced(original_notes)
     end
 
-    #def destroy_with_post_st_changes
-    #  destroy_without_post_st_changes
-    #end
+    def update_original_and_enhanced(original_notes)
+      return unless update_issue_from_params
+      @issue.save_attachments(params[:attachments] || (params[:issue] && params[:issue][:uploads]))
+      saved = false
+      begin
+        saved = @issue.save_issue_with_child_records(params, @time_entry)
+      rescue ActiveRecord::StaleObjectError
+        @conflict = true
+        if params[:last_journal_id]
+          if params[:last_journal_id].present?
+            last_journal_id = params[:last_journal_id].to_i
+            @conflict_journals = @issue.journals.all(:conditions => ["#{Journal.table_name}.id > ?", last_journal_id])
+          else
+            @conflict_journals = @issue.journals.all
+          end
+        end
+      end
+
+      if saved
+        render_attachment_warning_if_needed(@issue)
+        flash[:notice] = l(:notice_successful_update) unless @issue.current_journal.new_record?
+
+        respond_to do |format|
+          format.html { redirect_back_or_default({:action => 'show', :id => @issue}) }
+          format.api  { head :ok }
+        end
+      else
+        params['notes'] = original_notes      # enhance code
+        @notes = original_notes               # enhance code
+
+        respond_to do |format|
+          format.html { render :action => 'edit' }
+          format.api  { render_validation_errors(@issue) }
+        end
+      end
+    end
 
   end
 

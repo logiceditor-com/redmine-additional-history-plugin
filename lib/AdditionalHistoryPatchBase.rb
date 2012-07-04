@@ -25,12 +25,6 @@ module AdditionalHistoryPatchBase
   end
 
   def parse_hours(hours)
-    #matches = "1".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    #matches = "0.25".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    #matches = "30m".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    #matches = "1h30m".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    #matches = "1h".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
-    #matches = "3.25".match(/([\d\.]+)(([hm]?)((\d+)(m?))?)?/)
     matches = hours.to_s.match(/([\d\.]+)\s*(([hm]?)\s*((\d+)\s*(m?))?)?/)
 
     if matches[2] == nil
