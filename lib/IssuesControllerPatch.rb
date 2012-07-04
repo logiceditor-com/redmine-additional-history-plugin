@@ -29,7 +29,8 @@ module IssuesControllerPatch
         comments = params['time_entry']['comments']
         total_st = humanize_hours(@issue.total_spent_hours + st)
         st = humanize_hours(st)
-        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st}*)\n\n#{params['notes']}"
+        et = humanize_hours(params['issue']['estimated_hours'])
+        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st} / #{et}*)\n\n#{params['notes']}"
       end
 
       update_original_and_enhanced(original_notes)

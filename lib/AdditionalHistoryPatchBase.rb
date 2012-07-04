@@ -21,6 +21,10 @@ module AdditionalHistoryPatchBase
       res += "#{m}m"
     end
 
+    if res.empty?
+      res = "none"
+    end
+
     res
   end
 
