@@ -1,4 +1,4 @@
-<%= l(:text_issue_updated, :id => "##{@issue.id}", :author => h(@journal.user)) %>
+<%= l(:text_issue_updated, :id => "##{@issue.id}", :author => h(@author)) %> (comment author: <%= h(@journal.user) %>)
 
 <ul>
 <% details_to_strings(@journal.details, false, :only_path => false).each do |string| %>

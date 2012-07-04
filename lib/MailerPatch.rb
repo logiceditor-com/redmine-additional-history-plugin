@@ -92,7 +92,7 @@ module MailerPatch
       redmine_headers 'Issue-Assignee' => issue.assigned_to.login if issue.assigned_to
       message_id journal
       references issue
-      @author = journal.user
+      @author = User.current
       recipients issue.recipients
       # Watchers in cc
       cc(issue.watcher_recipients - @recipients)
@@ -103,9 +103,10 @@ module MailerPatch
       body :issue => issue,
            :journal => journal,
            :issue_url => url_for(:controller => 'issues', :action => 'show', :id => issue, :anchor => "change-#{journal.id}"),
-           :diff_text => diff_text
+           :diff_text => diff_text,
+           :author => User.current
 
-      render_multipart('issue_edit', body)
+      render_multipart('issue_comment_edit', body)
     end
 
     def perform_attach(attachment_item)
@@ -125,7 +126,7 @@ module MailerPatch
     end
 
     def render_multipart_with_enhance(method_name, body)
-      if method_name == 'issue_edit'
+      if method_name == 'issue_edit' || method_name == 'issue_comment_edit'
         journal = body[:journal]
         details = journal.details
 

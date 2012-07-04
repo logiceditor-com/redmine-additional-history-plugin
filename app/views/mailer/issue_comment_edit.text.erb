@@ -1,0 +1,14 @@
+<%= l(:text_issue_updated, :id => "##{@issue.id}", :author => @author) %> (comment author: <%= @journal.user %>)
+
+<% details_to_strings(@journal.details, true).each do |string| -%>
+<%= string %>
+<% end -%>
+
+<%= @journal.notes if @journal.notes? %>
+----------------------------------------
+<% if @diff_text %>
+    diff:<br /><br />
+    <%= @diff_text %>
+----------------------------------------
+<% end %>
+<%= render :partial => "issue.text.erb", :locals => { :issue => @issue, :issue_url => @issue_url } %>
