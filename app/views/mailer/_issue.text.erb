@@ -7,7 +7,8 @@
 <%=l(:field_assigned_to)%>: <%= issue.assigned_to %>
 <%=l(:field_category)%>: <%= issue.category %>
 <%=l(:field_fixed_version)%>: <%= issue.fixed_version %>
-<%=l(:field_estimated_hours)%>: <%=h issue.estimated_hours %>
+<%=l(:field_estimated_hours)%>: <%= issue.estimated_hours %>
+Watchers: <%= issue.watcher_users.join(", ") %>
 <% issue.custom_field_values.each do |c| %><%= c.custom_field.name %>: <%= show_value(c) %>
 <% end %>
 
