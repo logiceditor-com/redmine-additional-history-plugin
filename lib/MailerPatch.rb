@@ -132,8 +132,10 @@ module MailerPatch
 
         details.each do |detail|
           if detail.property == 'attachment'
-            attachment_item = Attachment::find(detail.prop_key)
-            perform_attach(attachment_item)
+            if detail.value != nil
+              attachment_item = Attachment::find(detail.prop_key)
+              perform_attach(attachment_item)
+            end
           end
         end
       elsif method_name == 'issue_add'
