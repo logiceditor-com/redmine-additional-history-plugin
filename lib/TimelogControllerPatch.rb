@@ -34,17 +34,35 @@ module TimelogControllerPatch
     end
 
     def update_with_post_changes
-      original_hours = @time_entry.attributes['hours'];
+      original_hours = @time_entry.hours;
+      original_issue_id = @time_entry.issue_id;
 
       update_without_post_changes
 
       if @time_entry.errors.length == 0
         original_hours = humanize_hours(original_hours)
-        new_hours = humanize_hours(@time_entry.attributes['hours'])
         comments = @time_entry.attributes['comments']
-        total_st = humanize_hours(@time_entry.issue.total_spent_hours);
-        et = humanize_hours(@time_entry.issue.estimated_hours)
-        post_comment(@time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}*ST changed*: #{original_hours} -> #{new_hours} (#{comments}) (total: *#{total_st} / #{et}*)")
+
+        if original_issue_id == @time_entry.issue_id
+          new_hours = humanize_hours(@time_entry.attributes['hours'])
+          total_st = humanize_hours(@time_entry.issue.total_spent_hours);
+          et = humanize_hours(@time_entry.issue.estimated_hours)
+          post_comment(@time_entry.issue, "#{AdditionalHistoryPatchBase::PREFIX}*ST changed*: #{original_hours} -> #{new_hours} (#{comments}) (total: *#{total_st} / #{et}*)")
+        else
+          new_hours = humanize_hours(@time_entry.attributes['hours'])
+          total_st = humanize_hours(@time_entry.issue.total_spent_hours);
+          et = humanize_hours(@time_entry.issue.estimated_hours)
+
+          original_issue = Issue.find_by_id(original_issue_id)
+          original_total_st = humanize_hours(original_issue.total_spent_hours);
+          original_et = humanize_hours(original_issue.estimated_hours)
+
+          message = "#{AdditionalHistoryPatchBase::PREFIX}*ST moved*: #{original_hours} ->  ##{@time_entry.issue.id} #{new_hours} (#{comments}) (total: *#{original_total_st} / #{original_et}*)"
+          post_comment(original_issue, message)
+
+          message = "#{AdditionalHistoryPatchBase::PREFIX}*ST moved*: ##{original_issue_id} #{original_hours} ->  #{new_hours} (#{comments}) (total: *#{total_st} / #{et}*)"
+          post_comment(@time_entry.issue, message)
+        end
       end
     end
 
