@@ -22,15 +22,17 @@ module IssuesControllerPatch
   module InstanceMethods
 
     def update_with_post_st_changes
-      time_entry = params['time_entry']
       original_notes = params['notes']
-      if time_entry['hours'].to_f > 0 && time_entry['activity_id'].to_i > 0 && !time_entry['comments'].empty?
-        st = parse_hours(params['time_entry']['hours'])
-        comments = params['time_entry']['comments']
-        total_st = humanize_hours(@issue.total_spent_hours + st)
-        st = humanize_hours(st)
-        et = humanize_hours(params['issue']['estimated_hours'])
-        params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st} / #{et}*)\n\n#{params['notes']}"
+      time_entry = params['time_entry']
+      if time_entry
+        if time_entry['hours'].to_f > 0 && time_entry['activity_id'].to_i > 0 && !time_entry['comments'].empty?
+          st = parse_hours(params['time_entry']['hours'])
+          comments = params['time_entry']['comments']
+          total_st = humanize_hours(@issue.total_spent_hours + st)
+          st = humanize_hours(st)
+          et = humanize_hours(params['issue']['estimated_hours'])
+          params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st} / #{et}*)\n\n#{params['notes']}"
+        end
       end
 
       update_original_and_enhanced(original_notes)
