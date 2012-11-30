@@ -29,7 +29,8 @@ module AdditionalHistoryPatchBase
   end
 
   def parse_hours(hours)
-    matches = hours.to_s.match(/([\d\.]+)\s*(([hm]?)\s*((\d+)\s*(m?))?)?/)
+    hours[","] = "."
+    matches = hours.match(/([\d\.]+)\s*(([hm]?)\s*((\d+)\s*(m?))?)?/)
 
     if matches[2] == nil
       hours = matches[1].to_f.round(2)
