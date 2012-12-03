@@ -29,7 +29,10 @@ module AdditionalHistoryPatchBase
   end
 
   def parse_hours(hours)
-    hours[","] = "."
+    if hours.index(',') != nil
+      hours[","] = "."
+    end
+
     matches = hours.match(/([\d\.]+)\s*(([hm]?)\s*((\d+)\s*(m?))?)?/)
 
     if matches[2] == nil
