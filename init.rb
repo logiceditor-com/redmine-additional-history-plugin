@@ -1,6 +1,6 @@
 require 'redmine'
 
-require 'dispatcher'
+require 'dispatcher' unless Rails::VERSION::MAJOR >= 3
 require 'TimelogControllerPatch'
 require 'IssuesControllerPatch'
 require 'WatchersControllerPatch'
@@ -10,30 +10,58 @@ require 'JournalsControllerPatch'
 require 'TimeEntryPatch'
 require 'IssueRelationsControllerPatch'
 
-Dispatcher.to_prepare :redmine_additional_history do
-  require_dependency 'timelog_controller'
-  TimelogController.send(:include, TimelogControllerPatch)
+if Rails::VERSION::MAJOR >= 3
+  ActionDispatch::Callbacks.to_prepare do
+    require_dependency 'timelog_controller'
+    TimelogController.send(:include, TimelogControllerPatch)
 
-  require_dependency 'issues_controller'
-  IssuesController.send(:include, IssuesControllerPatch)
+    require_dependency 'issues_controller'
+    IssuesController.send(:include, IssuesControllerPatch)
 
-  require_dependency 'watchers_controller'
-  WatchersController.send(:include, WatchersControllerPatch)
+    require_dependency 'watchers_controller'
+    WatchersController.send(:include, WatchersControllerPatch)
 
-  require_dependency 'mailer'
-  Mailer.send(:include, MailerPatch)
+    #require_dependency 'mailer'
+    #Mailer.send(:include, MailerPatch)
 
-  require_dependency 'issue'
-  Issue.send(:include, IssuePatch)
+    require_dependency 'issue'
+    Issue.send(:include, IssuePatch)
 
-  require_dependency 'journals_controller'
-  JournalsController.send(:include, JournalsControllerPatch)
+    require_dependency 'journals_controller'
+    JournalsController.send(:include, JournalsControllerPatch)
 
-  require_dependency 'time_entry'
-  TimeEntry.send(:include, TimeEntryPatch)
+    require_dependency 'time_entry'
+    TimeEntry.send(:include, TimeEntryPatch)
 
-  require_dependency 'issue_relations_controller'
-  IssueRelationsController.send(:include, IssueRelationsControllerPatch)
+    require_dependency 'issue_relations_controller'
+    IssueRelationsController.send(:include, IssueRelationsControllerPatch)
+  end
+else
+  Dispatcher.to_prepare :redmine_additional_history do
+    require_dependency 'timelog_controller'
+    TimelogController.send(:include, TimelogControllerPatch)
+
+    require_dependency 'issues_controller'
+    IssuesController.send(:include, IssuesControllerPatch)
+
+    require_dependency 'watchers_controller'
+    WatchersController.send(:include, WatchersControllerPatch)
+
+    require_dependency 'mailer'
+    Mailer.send(:include, MailerPatch)
+
+    require_dependency 'issue'
+    Issue.send(:include, IssuePatch)
+
+    require_dependency 'journals_controller'
+    JournalsController.send(:include, JournalsControllerPatch)
+
+    require_dependency 'time_entry'
+    TimeEntry.send(:include, TimeEntryPatch)
+
+    require_dependency 'issue_relations_controller'
+    IssueRelationsController.send(:include, IssueRelationsControllerPatch)
+  end
 end
 
 Redmine::Plugin.register :redmine_additional_history do

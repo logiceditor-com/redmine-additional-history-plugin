@@ -7,8 +7,8 @@ module MailerPatch
     base.class_eval do
       alias_method :attachments_added_without_enhance, :attachments_added unless method_defined?(:attachments_added_without_enhance)
       alias_method :attachments_added, :attachments_added_with_enhance
-      alias_method :render_multipart_without_enhance, :render_multipart unless method_defined?(:render_multipart_without_enhance)
-      alias_method :render_multipart, :render_multipart_with_enhance
+      #alias_method :render_multipart_without_enhance, :render_multipart unless method_defined?(:render_multipart_without_enhance)
+      #alias_method :render_multipart, :render_multipart_with_enhance
 
       instance_variable_get("@inheritable_attributes")[:view_paths].unshift(RAILS_ROOT + "/vendor/plugins/redmine-additional-history-plugin/app/views")
     end
