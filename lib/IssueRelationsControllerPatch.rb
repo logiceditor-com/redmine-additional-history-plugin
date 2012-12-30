@@ -73,7 +73,7 @@ module IssueRelationsControllerPatch
       if is_add then
         message = "This ticket now "
       else
-        message = "This ticket now no more "
+        message = "This ticket is no longer related to "
       end
       message = message + relation_type_message + " #"
       if is_forward then
