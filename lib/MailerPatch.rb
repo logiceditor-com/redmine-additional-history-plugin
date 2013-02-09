@@ -1,4 +1,5 @@
 require_dependency 'mailer'
+require 'cgi'
 
 module MailerPatch
   def self.included(base) # :nodoc:
@@ -38,7 +39,7 @@ module MailerPatch
           text = change[2]
           text.strip!
           if !text.empty?
-            lines << sign + " " + text
+            lines << CGI.escapeHTML(sign + " " + text)
           end
         end
         lines << "<br />"
