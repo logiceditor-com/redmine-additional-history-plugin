@@ -21,8 +21,8 @@ if Rails::VERSION::MAJOR >= 3
     require_dependency 'watchers_controller'
     WatchersController.send(:include, WatchersControllerPatch)
 
-    #require_dependency 'mailer'
-    #Mailer.send(:include, MailerPatch)
+    require_dependency 'mailer'
+    Mailer.send(:include, MailerPatch)
 
     require_dependency 'issue'
     Issue.send(:include, IssuePatch)
