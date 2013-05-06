@@ -8,10 +8,26 @@ module MailerPatch
     base.class_eval do
       alias_method :attachments_added_without_enhance, :attachments_added unless method_defined?(:attachments_added_without_enhance)
       alias_method :attachments_added, :attachments_added_with_enhance
-      alias_method :render_multipart_without_enhance, :render_multipart unless method_defined?(:render_multipart_without_enhance)
-      alias_method :render_multipart, :render_multipart_with_enhance
 
-      instance_variable_get("@inheritable_attributes")[:view_paths].unshift(RAILS_ROOT + "/vendor/plugins/redmine-additional-history-plugin/app/views")
+      if Rails::VERSION::MAJOR >= 3
+        alias_method :mail_without_enhance, :mail unless method_defined?(:mail_without_enhance)
+        alias_method :mail, :mail_with_enhance
+
+        alias_method :issue_edit_without_enhance, :issue_edit unless method_defined?(:issue_edit_without_enhance)
+        alias_method :issue_edit, :issue_edit_with_enhance
+
+        alias_method :issue_add_without_enhance, :issue_add unless method_defined?(:issue_add_without_enhance)
+        alias_method :issue_add, :issue_add_with_enhance
+
+        plugin_path = File.join(Rails.root.to_s,'plugins') + "/" + File.dirname(__FILE__).gsub(File.join(Rails.root.to_s,'plugins'),'').split('/')[1]
+        view_path = plugin_path + "/app/views"
+        self.view_paths.unshift(view_path)
+      else
+        alias_method :render_multipart_without_enhance, :render_multipart unless method_defined?(:render_multipart_without_enhance)
+        alias_method :render_multipart, :render_multipart_with_enhance
+
+        instance_variable_get("@inheritable_attributes")[:view_paths].unshift(RAILS_ROOT + "/vendor/plugins/redmine-additional-history-plugin/app/views")
+      end
     end
   end
 
@@ -49,9 +65,12 @@ module MailerPatch
   end
 
   module InstanceMethods
+    @@attachments = nil
 
     def attachments_added_with_enhance(attachments)
+      @@attachments = attachments
       add_result = attachments_added_without_enhance(attachments)
+
       #add_result.each do |action_mailer|
       #  attachments.each do |attachment|
       #    filepath = RAILS_ROOT + "/files/" + attachment.disk_filename
@@ -113,11 +132,18 @@ module MailerPatch
     end
 
     def perform_attach(attachment_item)
-      filepath = RAILS_ROOT + "/files/" + attachment_item.disk_filename
-      attachment :content_type => attachment_item.content_type,
-                 :body => File.read(filepath),
-                 :filename => attachment_item.filename
-
+      if Rails::VERSION::MAJOR >= 3
+        filepath = attachment_item.storage_path + "/" + attachment_item.disk_filename
+        # content = File.read(filepath) # not work on windows
+        content = open(filepath, "rb") {|io| io.read }
+        attachments[attachment_item.filename] = {:mime_type => attachment_item.content_type,
+                                                 :content => content}
+      else
+        filepath = RAILS_ROOT + "/files/" + attachment_item.disk_filename
+        attachment :content_type => attachment_item.content_type,
+                   :body => File.read(filepath),
+                   :filename => attachment_item.filename
+      end
     end
 
     def perform_attaches(attachments)
@@ -154,6 +180,52 @@ module MailerPatch
       end
 
       render_multipart_without_enhance(method_name, body)
+    end
+
+    def mail_with_enhance(headers={})
+      #if method_name == 'issue_edit' || method_name == 'issue_comment_edit'
+      #  journal = body[:journal]
+      #  details = journal.details
+      #
+      #  details.each do |detail|
+      #    if detail.property == 'attachment'
+      #      if detail.value != nil
+      #        attachment_item = Attachment::find(detail.prop_key)
+      #        perform_attach(attachment_item)
+      #      end
+      #    end
+      #  end
+      #elsif method_name == 'issue_add'
+      #  issue = body[:issue]
+      #  attachments = Attachment.find_all_by_container_type_and_container_id('Issue', issue.id)
+      #  perform_attaches(attachments)
+      #elsif method_name == 'attachments_added'
+      #  attachments = body[:attachments]
+      #  perform_attaches(attachments)
+      #elsif method_name == 'document_added'
+      #  attachments = body[:document].attachments
+      #  perform_attaches(attachments)
+      #end
+
+      if @@attachments != nil
+        perform_attaches(@@attachments)
+      end
+
+      res = mail_without_enhance(headers)
+
+      res
+    end
+
+    def issue_edit_with_enhance(journal)
+      res = issue_edit_without_enhance(journal)
+      @@attachments = nil
+      res
+    end
+
+    def issue_add_with_enhance(journal)
+      res = issue_add_without_enhance(journal)
+      @@attachments = nil
+      res
     end
 
   end

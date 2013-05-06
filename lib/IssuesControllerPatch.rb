@@ -22,7 +22,14 @@ module IssuesControllerPatch
   module InstanceMethods
 
     def update_with_post_st_changes
-      original_notes = params['notes']
+      if Rails::VERSION::MAJOR >= 3
+        notes_obj = params['issue']
+      else
+        notes_obj = params
+      end
+
+      original_notes = notes_obj['notes']
+
       time_entry = params['time_entry']
       if time_entry
         if time_entry['hours'].to_f > 0 && time_entry['activity_id'].to_i > 0 && !time_entry['comments'].empty?
@@ -31,7 +38,7 @@ module IssuesControllerPatch
           total_st = humanize_hours(@issue.total_spent_hours + st)
           st = humanize_hours(st)
           et = humanize_hours(params['issue']['estimated_hours'])
-          params['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st} / #{et}*)\n\n#{params['notes']}"
+          notes_obj['notes'] = "#{AdditionalHistoryPatchBase::PREFIX}*ST added*: #{st} (#{comments}) (total: *#{total_st} / #{et}*)\n\n#{notes_obj['notes']}"
         end
       end
 
@@ -65,8 +72,12 @@ module IssuesControllerPatch
           format.api  { head :ok }
         end
       else
-        params['notes'] = original_notes      # enhance code
-        @notes = original_notes               # enhance code
+        if Rails::VERSION::MAJOR >= 3            # enhance code
+          params.issue['notes'] = original_notes # enhance code
+        else                                     # enhance code
+          params['notes'] = original_notes       # enhance code
+        end                                      # enhance code
+        @notes = original_notes                  # enhance code
 
         respond_to do |format|
           format.html { render :action => 'edit' }
