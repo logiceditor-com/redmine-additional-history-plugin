@@ -133,7 +133,7 @@ module MailerPatch
 
     def perform_attach(attachment_item)
       if Rails::VERSION::MAJOR >= 3
-        filepath = attachment_item.storage_path + "/" + attachment_item.disk_filename
+        filepath = attachment_item.storage_path + "/" + attachment_item.disk_directory + "/" + attachment_item.disk_filename
         # content = File.read(filepath) # not work on windows
         content = open(filepath, "rb") {|io| io.read }
         attachments[attachment_item.filename] = {:mime_type => attachment_item.content_type,
