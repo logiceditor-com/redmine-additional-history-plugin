@@ -73,7 +73,7 @@ module IssuesControllerPatch
         end
       else
         if Rails::VERSION::MAJOR >= 3            # enhance code
-          params.issue['notes'] = original_notes # enhance code
+          params['issue']['notes'] = original_notes # enhance code
         else                                     # enhance code
           params['notes'] = original_notes       # enhance code
         end                                      # enhance code
